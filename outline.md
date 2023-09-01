@@ -40,7 +40,6 @@
 ### Order
 - basic values types
 - basic flake structure
-- basic top-level schema
 - "packages"?
     - search.nixos.org
     - nixpkgs

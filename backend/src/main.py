@@ -1,15 +1,35 @@
 from flask import Flask
 
+import sqlite3
+
 app = Flask(__name__)
+db = "local.db"
+con = sqlite3.connect(db)
+cur = con.cursor()
+cur.execute("CREATE TABLE IF NOT EXISTS name(name)")
+con.close()
 
 @app.route("/")
 def hello_world():
-    return "<p>Hello, World!</p>"
+    con = sqlite3.connect("local.db")
+    cur = con.cursor()
+    res = cur.execute("SELECT name FROM NAME").fetchall()
+    res = [f'<li>{x[0]}</li>' for x in res]
+    res = "\n".join(res)
+    con.close()
+    return f'''<p>Hello, World!</p>
+    <ul>
+    {res}
+    </ul>'''
 
-@app.route("/another")
-def hello_world():
-    return "<p>Hello, World!</p>"
+@app.route("/<name>")
+def hello_name(name):
+    con = sqlite3.connect("local.db")
+    cur = con.cursor()
+    cur.execute('INSERT INTO name (name) VALUES(?)',[name])
+    con.commit()
+    con.close()
+    return f"<p>Hello, {name}!</p>"
 
-def run():
-    app.run()
-
+if __name__ == "__main__":
+    app.run(debug=True)
