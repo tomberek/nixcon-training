@@ -13,10 +13,12 @@
           pkgs.nodejs
           pkgs.poetry
           pkgs.sqlite
+          pkgs.foreman
         ];
         shellHook = ''
           export PATH=$PWD/node_modules/.bin:$PATH
           alias dump_db="sqlite3 local.db 'SELECT * FROM name'"
+          echo "Run `foreman start` to run backend and frontend services"
         '';
       };
   };

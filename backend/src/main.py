@@ -18,12 +18,12 @@ def hello_world():
     res = "\n".join(res)
     con.close()
     return f'''
-    <p>Hello, World!</p>
+    <p>Hello, World! I have said "hello" to the following:</p>
     <ul>
     {res}
     </ul>'''
 
-@app.route("/<name>")
+@app.route("/<name>",methods = ['POST','GET'])
 def hello_name(name):
     con = sqlite3.connect("local.db")
     cur = con.cursor()
