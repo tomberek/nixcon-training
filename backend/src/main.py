@@ -1,4 +1,5 @@
 from flask import Flask
+import os
 
 import sqlite3
 
@@ -33,4 +34,4 @@ def hello_name(name):
     return f"<p>Hello, {name}!</p>"
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(port=(os.getenv("PORT",5000)),debug=True)
