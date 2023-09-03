@@ -1,0 +1,69 @@
+behavior Trystero
+    init
+        get #cursor
+        set its *position to 'fixed'
+        set its *z-index to -3
+        if localStorage.name is not null then
+            put localStorage.name into its textContent
+        else put '...connecting' into its textContent
+        end
+        put it at the end of body
+        repeat while window.trystero is null
+            log 'waiting'
+            wait 1s
+        end
+        set :joinRoom to window.trystero.joinRoom
+        log `joining as: ${window.trystero.selfId}`
+        call :joinRoom({appId:'nixcontraining'},'somethingunique')
+        then set $room to it
+        js($room)
+            const [sendMsg, getMsg] = $room.makeAction('mouseMove')
+            return {sendMsg:sendMsg,getMsg:getMsg}
+        end
+        set $actions to it
+        call $actions.getMsg(getM)
+        call $room.onPeerJoin(joined)
+        call $room.onPeerLeave(left)
+    end
+    def getM(data,peerId)
+        get #{peerId}
+        if data.name is null then
+            put peerId into its textContent
+        else
+            put data.name into its textContent
+        end
+        set its *top to (data.clientY + 10) px
+        set its *left to (data.clientX + 10) px
+    end
+    def left(peerId)
+        remove #{peerId}
+        log `left: ${peerId}`
+    end
+    def joined(peerId)
+       make <b.float/>
+       set its *position to 'fixed'
+       set its *z-index to -3
+       set its @id to peerId
+       put it at the end of body
+       log `joined: ${peerId}`
+       get #cursor
+       if localStorage.name is not null then
+           put localStorage.name into its textContent
+       else
+           put window.trystero.selfId into its textContent
+       end
+    end
+    on mousemove from window
+        if #cursor is not null then
+            set #cursor's *top to (event.clientY + 10) px
+            set #cursor's *left to (event.clientX + 10) px
+        end
+        if $room is not null
+            call $room.getPeers()
+            set peers to it
+            for peer in Object.keys(peers)
+                call $actions.sendMsg( {clientX:event.clientX,clientY:event.clientY,name:localStorage.name},peer)
+            end
+        end
+    end
+end

@@ -1,9 +1,9 @@
 <head>
 <link rel="icon" href="/favicon.svg" sizes="any" type="image/svg+xml">
 <link rel="stylesheet" href="https://unpkg.com/missing.css@1.0.9/dist/missing.min.css">
+<script type="text/hyperscript" src="trystero._hs"></script>
 <script src="https://unpkg.com/htmx.org@1.9.5" integrity="sha384-xcuj3WpfgjlKF+FXhSQFQ0ZNr39ln+hwjN3npfM9VBnUskLolQAcN80McRIVOPuO" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/hyperscript.org@0.9.11"></script>
-
 <style>
 .float {
     position: fixed;
@@ -14,103 +14,28 @@
 }
 </style>
 </head>
-<body
-     _="
-     on mousemove from window
-        if #cursor is not null then
-            set #cursor's *top to (event.clientY + 10) px
-            set #cursor's *left to (event.clientX + 10) px
-            call $room.getPeers()
-            set peers to it
-            for peer in Object.keys(peers)
-                call $actions.sendMsg( {clientX:event.clientX,clientY:event.clientY,name:localStorage.name},peer)
-            end
-        end
-        "
-    >
-<b class="float" id="cursor"
-    _="
-       on load
-            if localStorage.name is not null then
-                put localStorage.name into my textContent
-            else
-                put peerId into my textContent
-            "
-    ></b>
-<main id="main"
-  _="
-     def getM(data,peerId)
-         get #{peerId}
-         if it is null
-            make <b.float/>
-            set its *position to 'fixed'
-            set its *z-index to -3
-            set its @id to peerId
-            put it at the end of body
-         end
-         put data.name into its textContent
-         set its *top to (data.clientY + 10) px
-         set its *left to (data.clientX + 10) px
-         log data
-     end
-     def left(peerId)
-        remove #{peerId}
-     end
-     def joined(peerId)
-        put peerId into localStorage.peerId
-        log `joined as: ${peerId}`
-        get #cursor
-        set its *position to 'fixed'
-        set its *z-index to -3
-        if localStorage.name is not null then
-            put localStorage.name into its textContent
-        else
-            put peerId into its textContent
-        end
-        put it after me
-     end
-     on trystero
-        set :detail to event.detail
-        set :joinRoom to event.detail.joinRoom
-        call :joinRoom({appId:'nixcontraining'},'somethingunique')
-        then set $room to it
-        js($room)
-            const [sendMsg, getMsg] = $room.makeAction('mouseMove')
-            return {sendMsg:sendMsg,getMsg:getMsg}
-        end
-        set $actions to it
-        call $actions.getMsg(getM)
-        call $room.onPeerJoin(joined)
-        call $room.onPeerLeave(left)
-    end
-"
-    >
-    <h2>Main Page</h2>
-<section hx-get="/api/" hx-trigger="load" hx-swap="innerHTML">
-</section>
-<form hx-post="/api/"
-    hx-swap="outerHTML swap:1s"
-    _="on change
-       put `/api/${#name.value}` into @hx-post
-       put #name.value into localStorage.name
-       put #name.value into #cursor's textContent
-       call htmx.process(me)
-        "
-    >
-    Who are you?
-    <input id="name" name="name" type="text"
-    >
-<button 
-    type="submit">Submit</button>
-</form>
-<script id="trystero" type="module">
-    // P2P interactivity!
+
+<script async type="module">
     import {joinRoom,selfId} from 'https://cdn.skypack.dev/trystero'
-    setTimeout(()=>{
-        const target = document.getElementById("main")
-        event = new CustomEvent("trystero",{detail:{joinRoom:joinRoom,selfId:selfId}})
-        target.dispatchEvent(event);
-    },0)
+    window.trystero = {joinRoom:joinRoom,selfId:selfId}
 </script>
+<body _="install Trystero">
+<main id="main">
+    <h2>Main Page</h2>
+    <section hx-get="/api/" hx-trigger="load" hx-swap="innerHTML"></section>
+    <b class="float" id="cursor"></b>
+    <form hx-post="/api/"
+        hx-swap="outerHTML swap:2s"
+        _="on change
+           put `/api/${#name.value}` into @hx-post
+           put #name.value into localStorage.name
+           put #name.value into #cursor's textContent
+           call htmx.process(me)
+            "
+        >
+        Who are you?
+        <input id="name" name="name" type="text">
+        <button type="submit">Submit</button>
+    </form>
 </main>
 </body>
