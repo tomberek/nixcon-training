@@ -17,9 +17,11 @@ def hello_world():
     cur = con.cursor()
     res = cur.execute("SELECT name FROM NAME").fetchall()
     res = [f'''
-       <li hx-get="/api/{markupsafe.escape(x[0])}/created" hx-target="find span" hx-trigger="click throttle:1s">
-        {markupsafe.escape(x[0])}<span></span>
-       </li>''' for x in res]
+       <li hx-get="/api/{o}/created"
+           hx-target="find span"
+           hx-swap="innerHTML settle:1s"
+           hx-trigger="click throttle:2s">{o}<span></span>
+       </li>''' for x in res if (o := markupsafe.escape(x[0]))]
     res = "\n".join(res)
     con.close()
     return f'''
