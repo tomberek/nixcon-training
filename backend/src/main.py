@@ -26,7 +26,7 @@ def hello_world():
     con.close()
     return f'''
     <p>Hello, World! I have said "hello" to the following:</p>
-    <ul>
+    <ul title="click on a name to see creation date">
     {res}
     </ul>'''
 
