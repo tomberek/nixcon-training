@@ -8,14 +8,17 @@
 .float {
     position: fixed;
 }
-.htmx-swapping {
+li.htmx-request {
+    color: blue;
+}
+form.htmx-swapping {
     opacity: 0;
-    transition: opacity 1s ease-out;
+    transition: opacity 1s ease;
 }
 span {
     transition: all 1s ease;
 }
-.htmx-settling {
+span.htmx-added {
     color: green;
 }
 </style>
@@ -33,12 +36,9 @@ span {
     <form hx-post="/api/"
         hx-swap="outerHTML swap:2s"
         _="on change
-           put `/api/${#name.value}` into @hx-post
            put #name.value into localStorage.name
            put #name.value into #cursor's textContent
-           call htmx.process(me)
-            "
-        >
+           ">
         Who are you?
         <input id="name" name="name" type="text">
         <button type="submit">Submit</button>
